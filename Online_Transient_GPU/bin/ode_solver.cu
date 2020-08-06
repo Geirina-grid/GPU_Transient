@@ -121,10 +121,12 @@ void ODE_solver::update_generator_current(const d_vector_type& x, EPRI_GEN_DATA&
   //  Id = (+gen.Ra * (x[Edpp_idx] - Vd) + gen.Xqpp * (x[Eqpp_idx] - Vq)) / denom;
   //  Iq = (-gen.Xdpp * (x[Edpp_idx] - Vd) + gen.Ra * (x[Eqpp_idx] - Vq)) / denom;
   //} else {
+   /*
     real__t denom = gen.Ra * gen.Ra + gen.Xdp * gen.Xqp;
     //assert(abs(denom) > EPS);
     Id = (+gen.Ra * (x[Edp_idx] - Vd) + gen.Xqp * (x[Eqp_idx] - Vq)) / denom;
     Iq = (-gen.Xdp * (x[Edp_idx] - Vd) + gen.Ra * (x[Eqp_idx] - Vq)) / denom;
+     */
   //}
 }
 

@@ -394,26 +394,6 @@ void Transient_Solver::run(int argc, char** argv) {
       std::terminate();
     }
     
-    //get_generator_current();
-    //unordered_map<string, string>  mp = {{"1","12"}, {"2", "23"}, {"3", "34"}};   
-   
-    //mp['1'] = '12';
-    //mp['2'] = '23';
-    //mp['3'] = '34';
-    /** solve one step of ordinary differential equations */
-    //thrust::for_each(thrust::device, generators.begin(), generators.end(), printf_functor());
-    //for (auto& g_hldr : mp) {
-    //  auto & bus_name=g_hldr.first;
-    //  auto & gen=g_hldr.second;
-    //  std::cout << "bus_name address:" << &bus_name << std::endl;
-    //  std::cout << "bus_name:" << bus_name << std::endl;
-    //}
-    //test_cuda(mp);
-    //test_cuda(generators);
-    //printf("Begin thrust for_each...");
-    //thrust::for_each(mp.begin(), mp.end(), printf_functor());
-    //thrust::for_each(generators.begin(), generators.end(), printf_functor());
-    //printf("End thruest for_each **********");
     int gen_length = 0;
     int gen_count = 0;
     int gen_attr_count = 0;
@@ -424,10 +404,10 @@ void Transient_Solver::run(int argc, char** argv) {
       uint__t bus_id = bus_name_to_id[bus_name] - 1;
 
       /** update the Vx and Vy values at each gen node */
-      system.Vx = gVoltage[bus_id];
-      system.Vy = gVoltage[bus_id + nBuses];
-      system.Id = gen_dq_current[bus_name][0];
-      system.Iq = gen_dq_current[bus_name][1];
+      system.Vx[gen_count] = gVoltage[bus_id];
+      system.Vy[gen_count] = gVoltage[bus_id + nBuses];
+      system.Id[gen_count] = gen_dq_current[bus_name][0];
+      system.Iq[gen_count] = gen_dq_current[bus_name][1];
 
 
       assign_ode_solver_data(bus_name, gen);
@@ -437,21 +417,22 @@ void Transient_Solver::run(int argc, char** argv) {
       //h2_gen_solution_set[gen_count][gen_attr_count]
       h2_gen_solution_set.push_back(gen_solution[bus_name]);
       h2_gen_error_set.push_back(gen_error[bus_name]);
+      gen_count++;
     }
     //int gen_length = gen_solution[bus_name].size();
-    d_vector_type d2_gen_solution_set(8*gen_length);
+    d_vector_type d2_gen_solution_set(GEN_SIZE*gen_length);
     //d_vector_type d2_gen_solution_set(h2_gen_solution_set.begin(), h2_gen_solution_set.end());
     //thrust::copy(&(h2_gen_solution_set[0][0]), &(h2_gen_solution_set[7][gen_length-1]), d2_gen_solution_set.begin());
-    for(int i=0; i < 8; i++){
+    for(int i=0; i < GEN_SIZE; i++){
         thrust::copy(h2_gen_solution_set[i].begin(), h2_gen_solution_set[i].end(), &d2_gen_solution_set[i*gen_length]);
     }
     thrust::sequence(d2_gen_solution_set.begin(), d2_gen_solution_set.end());
 
 
-    d_vector_type d2_gen_error_set(8*gen_length);
+    d_vector_type d2_gen_error_set(GEN_SIZE*gen_length);
     //thrust::copy(&(h2_gen_error_set[0][0]), &(h2_gen_error_set[7][gen_length-1]), d2_gen_error_set.begin());
     //d_vector_type d2_gen_error_set(h2_gen_error_set.begin(), h2_gen_error_set.end());
-    for(int i =0; i<8; i++){
+    for(int i =0; i<GEN_SIZE; i++){
         thrust::copy(h2_gen_error_set[i].begin(), h2_gen_error_set[i].end(), &d2_gen_error_set[i*gen_length]);
     }
     thrust::sequence(d2_gen_error_set.begin(), d2_gen_error_set.end());
@@ -482,7 +463,7 @@ void Transient_Solver::run(int argc, char** argv) {
       //current_time += time_stepping;
       //num_of_steps++;
     }
-    cout << "\n+++Now number of steps: " << num_of_steps << endl;
+    //cout << "\n+++Now number of steps: " << num_of_steps << endl;
 
     
 #if DEBUG

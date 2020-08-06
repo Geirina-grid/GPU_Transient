@@ -19,16 +19,21 @@ namespace transient_analysis {
 real__t ODE_solver::
 process_steam_machine_third_order(const vector_type& x, vector_type& dxdt, const STEAM_DATA& steam,
                                   real__t val_src, const int idx_hp, const int idx_ip, const int idx_lp) {
+
+  /*
   integrate_block(dxdt, val_src,   x[idx_hp], idx_hp, 1. , 1., steam.Tch);
   integrate_block(dxdt, x[idx_hp], x[idx_ip], idx_ip, 1. , 1., steam.Trh);
   integrate_block(dxdt, x[idx_ip], x[idx_lp], idx_lp, 1. , 1., steam.Tco);
   return (steam.Flp * x[idx_lp] + steam.Fip * x[idx_ip] +
           steam.Fhp * (x[idx_hp] + steam.lambda * (x[idx_hp] - x[idx_ip])));
+  */
+  return 3.14;
 }
 
 /** 1型GOV是一种水、火电机组均适用的通用调速器模型 */
 real__t ODE_solver::
 process_EPRI_GOV_TYPE_I(const vector_type& x, vector_type& dxdt, EPRI_GOV_I_DATA& gov) {
+  /*
   assert((gov.gov_type == 1 && gov.TW == 0) || (gov.gov_type == 2 && gov.alpha == 1));
 
   real__t KmH = parameters.Rate_MW / 100.;
@@ -41,14 +46,14 @@ process_EPRI_GOV_TYPE_I(const vector_type& x, vector_type& dxdt, EPRI_GOV_I_DATA
   sigma = apply_dead_band(sigma, 0.5 * gov.dead_band_tol);
   sigma = apply_limiting(sigma, gov.sigma_Min, gov.sigma_Max);
   integrate_block(dxdt, sigma, x[delta_mu_idx], delta_mu_idx, 1., 0., gov.TS);
-
+  */
   /** 软负反馈 */
-  real__t dmudt = dxdt[delta_mu_idx];
-  integrate_block(x, dxdt, mu, dmudt, x[GPf_idx], GPf_idx, 0., gov.Kbeta * gov.Ti, 1., gov.Ti);
+  //real__t dmudt = dxdt[delta_mu_idx];
+  //integrate_block(x, dxdt, mu, dmudt, x[GPf_idx], GPf_idx, 0., gov.Kbeta * gov.Ti, 1., gov.Ti);
 
   /** the turbine equations */
-  integrate_block(x, dxdt, KmH * mu, KmH * dmudt, x[GP1_idx], GP1_idx, 1., -gov.TW, 1., gov.T0);
-  integrate_block(dxdt, x[GP1_idx], x[GP2_idx], GP2_idx, 1. - gov.alpha, 1., gov.TRH);
+  //integrate_block(x, dxdt, KmH * mu, KmH * dmudt, x[GP1_idx], GP1_idx, 1., -gov.TW, 1., gov.T0);
+  //integrate_block(dxdt, x[GP1_idx], x[GP2_idx], GP2_idx, 1. - gov.alpha, 1., gov.TRH);
   
 #if DEBUG
   cout << "***GOV debugging data:***\n";
@@ -72,7 +77,8 @@ process_EPRI_GOV_TYPE_I(const vector_type& x, vector_type& dxdt, EPRI_GOV_I_DATA
   cout << "d_Gpf_dt = " << dxdt[GPf_idx] << endl << endl;
 #endif
   
-  return gov.alpha * x[GP1_idx] + x[GP2_idx];
+  //return gov.alpha * x[GP1_idx] + x[GP2_idx];
+  return 3.14;
 }
 
 /** electro_hydraulic_servo 电液伺服机构 is used for Governors 3, 4, and 5 */
@@ -80,20 +86,23 @@ real__t ODE_solver::
 electro_hydraulic_servo(const vector_type& x, vector_type& dxdt, EHS_DATA& ehs,
                         int idx_src, int idx_pid, int idx_feedback, int idx_dst) {
   /** 电液转换PID模块 */
+  /*
   real__t val_pid_in = x[idx_src] - x[idx_feedback];
   real__t div_pid_in = dxdt[idx_src] - dxdt[idx_feedback];
   real__t pid_output = process_PID_block(x, dxdt, val_pid_in, div_pid_in, idx_pid, ehs.pid);
   pid_output = apply_limiting(pid_output, ehs.VEL_Close, ehs.VEL_Open);
   pid_output *= ehs.is_open ? 1. / ehs.TO : 1. / ehs.TC;
-  
+  */
   /** 油动机 */
+  /*
   dxdt[idx_dst] = pid_output;
   real__t val = apply_limiting(x[idx_dst], ehs.P_Min, ehs.P_Max);
-  
+  */
   /** LVDT */
-  integrate_block(dxdt, val, x[idx_feedback], idx_feedback, 1., 1., ehs.T2);
+  //integrate_block(dxdt, val, x[idx_feedback], idx_feedback, 1., 1., ehs.T2);
   
-  return val;
+  //return val;
+   return 3.14;
 }
 
 ///** 2型调速器属于汽轮机机械液压式调速系统模型,由“液压调节系统”、“汽轮机模型”、“主汽压力变化模型”组成 */
@@ -126,11 +135,11 @@ electro_hydraulic_servo(const vector_type& x, vector_type& dxdt, EHS_DATA& ehs,
 real__t ODE_solver::
 process_EPRI_GOV_TYPE_III(const vector_type& x, vector_type& dxdt, EPRI_GOV_III_DATA& gov) {
   /** 电液调节系统1: input - delta_omega, output - mu */
-  real__t delta_omega = apply_dead_band(omega_ref - x[omega_idx], 0.5 * gov.dead_band_tol);
-  integrate_block(dxdt, delta_omega, x[GP1_idx], GP1_idx, gov.K1, 1., gov.T1); //转速测量
+  //real__t delta_omega = apply_dead_band(omega_ref - x[omega_idx], 0.5 * gov.dead_band_tol);
+  //integrate_block(dxdt, delta_omega, x[GP1_idx], GP1_idx, gov.K1, 1., gov.T1); //转速测量
   
-  real__t val_pid_in = -x[GP1_idx] - Telec + Pe_ref;
-  mu = process_PID_block(x, dxdt, val_pid_in, dxdt[GP1_idx], GP2_idx, gov.pid_load);
+  //real__t val_pid_in = -x[GP1_idx] - Telec + Pe_ref;
+  //mu = process_PID_block(x, dxdt, val_pid_in, dxdt[GP1_idx], GP2_idx, gov.pid_load);
 
   /** 电液伺服机构 -- not implemented yet */
   
@@ -138,12 +147,12 @@ process_EPRI_GOV_TYPE_III(const vector_type& x, vector_type& dxdt, EPRI_GOV_III_
   /** Note: 在现阶段使用的调速器模型中，由于主汽压力变化模型的响应时间很长，
    *        因此在一般的暂态稳定分析计算中很少考虑，此时认为主汽压力为1。具体参考电科院文档。
    */
-  real__t P_pressure = 1.;
+  //real__t P_pressure = 1.;
   
   /** 汽轮机模型: input - mu (gate opening, 调门开度), output - P_mech (mechanical power, 机械功率) */
-  mu *= P_pressure;
+  //mu *= P_pressure;
 //  real__t mu_div = P_pressure * (dxdt[GP2_idx] - gov.pid_load.Kp * dxdt[GP1_idx]);
-  real__t P_mech = process_steam_machine_third_order(x, dxdt, gov.steam, mu, hp_idx, ip_idx, lp_idx);
+  //real__t P_mech = process_steam_machine_third_order(x, dxdt, gov.steam, mu, hp_idx, ip_idx, lp_idx);
   
 #if DEBUG
   cout << "***GOV debugging data:***\n";
@@ -166,13 +175,15 @@ process_EPRI_GOV_TYPE_III(const vector_type& x, vector_type& dxdt, EPRI_GOV_III_
   cout << "dxdt[lp_idx] = " << dxdt[lp_idx] << endl << endl;
 #endif
   
-  return P_mech;
+  //return P_mech;
+  return 3.14;
 }
 
 /** 4型GOV属于汽轮机电气液压式调速系统模型 */
 real__t ODE_solver::
 process_EPRI_GOV_TYPE_IV(const vector_type& x, vector_type& dxdt, EPRI_GOV_IV_DATA& gov) {
   /** 电液调节系统2: input - delta_omega, output - mu */
+  /*
   real__t delta_omega = omega_ref - x[omega_idx];
   integrate_block(dxdt, delta_omega, x[GP1_idx], GP1_idx, 1., 1., gov.T1); //转速测量
   
@@ -195,7 +206,7 @@ process_EPRI_GOV_TYPE_IV(const vector_type& x, vector_type& dxdt, EPRI_GOV_IV_DA
     mu += process_PID_block(x, dxdt, val_pid_in, div_pid_in, GP2_idx, gov.pid);
     mu_div += dxdt[GP2_idx] - gov.pid.Kp * dxdt[GP1_idx];
   }
-  
+  */
   /** 电液伺服机构 -- not implemented */
   
   /** 主汽压力变化模型 */
@@ -205,9 +216,9 @@ process_EPRI_GOV_TYPE_IV(const vector_type& x, vector_type& dxdt, EPRI_GOV_IV_DA
   real__t P_pressure = 1.;
   
   /** 汽轮机模型: input - mu (gate opening, 调门开度), output - P_mech (mechanical power, 机械功率) */
-  mu *= P_pressure;
-  mu_div *= P_pressure;
-  real__t P_mech = process_steam_machine_third_order(x, dxdt, gov.steam, mu, hp_idx, ip_idx, lp_idx);
+  //mu *= P_pressure;
+  //mu_div *= P_pressure;
+  //real__t P_mech = process_steam_machine_third_order(x, dxdt, gov.steam, mu, hp_idx, ip_idx, lp_idx);
   
 #if DEBUG
   cout << "***GOV debugging data:***\n";
@@ -232,13 +243,15 @@ process_EPRI_GOV_TYPE_IV(const vector_type& x, vector_type& dxdt, EPRI_GOV_IV_DA
   cout << "dxdt[lp_idx] = " << dxdt[lp_idx] << endl << endl;
 #endif
   
-  return P_mech;
+  //return P_mech;
+  return 3.14;
 }
 
 /** 5型GOV属于汽轮机电气液压式调速系统模型 */
 real__t ODE_solver::
 process_EPRI_GOV_TYPE_V(const vector_type& x, vector_type& dxdt, EPRI_GOV_V_DATA& gov) {
   /** 电液调节系统3: input - delta_omega, output - mu */
+   /*
   real__t delta_omega = omega_ref - x[omega_idx];
   integrate_block(dxdt, delta_omega, x[GP1_idx], GP1_idx, 1., 1., gov.T1); //转速测量
   mu = 0.;
@@ -258,7 +271,7 @@ process_EPRI_GOV_TYPE_V(const vector_type& x, vector_type& dxdt, EPRI_GOV_V_DATA
     mu = process_PID_block(x, dxdt, val_pid_in, div_pid_in, GP2_idx, gov.pid);
     mu_div = dxdt[GP2_idx] - gov.pid.Kp * dxdt[GP1_idx];
   }
-  
+  */
   /** 电液伺服机构 -- not implemented */
   
   /** 主汽压力变化模型 */
@@ -268,9 +281,9 @@ process_EPRI_GOV_TYPE_V(const vector_type& x, vector_type& dxdt, EPRI_GOV_V_DATA
   real__t P_pressure = 1.;
   
   /** 汽轮机模型: input - mu (gate opening, 调门开度), output - P_mech (mechanical power, 机械功率) */
-   mu *= P_pressure;
-   mu_div *= P_pressure;
-   real__t P_mech = process_steam_machine_third_order(x, dxdt, gov.steam, mu, hp_idx, ip_idx, lp_idx);
+   //mu *= P_pressure;
+   //mu_div *= P_pressure;
+   //real__t P_mech = process_steam_machine_third_order(x, dxdt, gov.steam, mu, hp_idx, ip_idx, lp_idx);
   
 #if DEBUG
   cout << "*** GOV debugging data: ***\n";
@@ -288,7 +301,8 @@ process_EPRI_GOV_TYPE_V(const vector_type& x, vector_type& dxdt, EPRI_GOV_V_DATA
   cout << "d_GP2_dt = " << dxdt[GP2_idx] << endl;
 #endif
   
-  return P_mech;
+  //return P_mech;
+   return 3.14;
 }
 
 /**  */
@@ -302,13 +316,15 @@ process_EPRI_GOV_TYPE_V(const vector_type& x, vector_type& dxdt, EPRI_GOV_V_DATA
 real__t ODE_solver::
 process_EPRI_GOV_TYPE_VII(const vector_type& x, vector_type& dxdt, EPRI_GOV_VII_DATA& gov) {
   /** 调节系统模型: input - delta_omega, output - mu */
+  /*
   integrate_block(dxdt, x[omega_idx], x[GP1_idx], GP1_idx, 1., 1., gov.TR1); //转速测量
   real__t delta_omega = apply_dead_band(omega_ref - x[GP1_idx], gov.dead_band1);
   delta_omega = apply_limiting(delta_omega, gov.dead_band_Min1, gov.dead_band_Max1);
   real__t val_pid_in = delta_omega * gov.Kw;
   real__t div_pid_in = -apply_dead_band(dxdt[GP1_idx], gov.dead_band1) * gov.Kw;
-  
+  */
   /** PID block */
+   /*
   real__t val1 = apply_limiting(gov.Kp * val_pid_in, gov.PRO_Min, gov.PRO_Max);
   integrate_block(x, dxdt, val_pid_in, div_pid_in, x[GP2_idx], GP2_idx, 0., gov.Kd, 1., gov.Td);
   real__t val2 = x[GP2_idx];
@@ -318,11 +334,11 @@ process_EPRI_GOV_TYPE_VII(const vector_type& x, vector_type& dxdt, EPRI_GOV_VII_
   mu = apply_limiting(val_total, 10. * gov.PID_Min, 10. * gov.PID_Max);
   mu = apply_limiting(mu, gov.Ratelimn, gov.Ratelimp);
   real__t mu_div = div_pid_in * gov.Kp + dxdt[GP2_idx] + dxdt[GP3_idx];
-  
+  */
   /** 液压系统 -- not implemented */
     
   /** 水轮机模型: input - mu (gate opening, 调门开度), output - P_mech (mechanical power, 机械功率) */
-  integrate_block(x, dxdt, mu, mu_div, x[GPm_idx], GPm_idx, 1., -gov.Tw, 1., 0.5 * gov.Tw);
+  //integrate_block(x, dxdt, mu, mu_div, x[GPm_idx], GPm_idx, 1., -gov.Tw, 1., 0.5 * gov.Tw);
   
 #if DEBUG
   cout << "*** GOV debugging data: ***\n";
@@ -351,14 +367,16 @@ process_EPRI_GOV_TYPE_VII(const vector_type& x, vector_type& dxdt, EPRI_GOV_VII_
 real__t ODE_solver::
 process_EPRI_GOV_TYPE_VIII(const vector_type& x, vector_type& dxdt, EPRI_GOV_VIII_DATA& gov) {
   /** 调节系统模型: input - delta_omega, output - delta_mu */
+  /*
   integrate_block(dxdt, x[omega_idx], x[GP1_idx], GP1_idx, 1., 1., gov.TR1); //转速测量
   real__t delta_omega = apply_dead_band(omega_ref - x[GP1_idx], gov.dead_band_p);
   delta_omega = apply_limiting(delta_omega, gov.dead_band_Min1, gov.dead_band_Max1);
   delta_omega = apply_limiting(delta_omega, gov.Rtd0, gov.Rti0);
   real__t val_pid_in = delta_omega * gov.Kw;
   real__t div_pid_in = -x[GP1_idx] * gov.Kw;
-  
+  */
   /** PID block */
+  /*
   real__t val1 = gov.Kp2 * val_pid_in;
   integrate_block(x, dxdt, val_pid_in, div_pid_in, x[GP2_idx], GP2_idx, 0., gov.Kd2, 1., gov.Td2);
   real__t val2 = x[GP2_idx];
@@ -368,11 +386,11 @@ process_EPRI_GOV_TYPE_VIII(const vector_type& x, vector_type& dxdt, EPRI_GOV_VII
   mu = apply_limiting(val_total, 10. * gov.PID_Min2, 10. * gov.PID_Max2);
   mu = apply_limiting(mu, gov.Rtd1, gov.Rti1);
   real__t mu_div = -gov.Kw * gov.Kp2 * dxdt[GP1_idx] + dxdt[GP2_idx] + dxdt[GP3_idx];
-  
+  */
   /** 液压系统 -- not implemented */
     
   /** 水轮机模型: input - mu (gate opening, 调门开度), output - P_mech (mechanical power, 机械功率) */
-  integrate_block(x, dxdt, mu, mu_div, x[GPm_idx], GPm_idx, 1., -gov.Tw, 1., 0.5 * gov.Tw);
+  //integrate_block(x, dxdt, mu, mu_div, x[GPm_idx], GPm_idx, 1., -gov.Tw, 1., 0.5 * gov.Tw);
   
 #if DEBUG
   cout << "*** GOV debugging data: ***\n";
@@ -401,6 +419,7 @@ process_EPRI_GOV_TYPE_VIII(const vector_type& x, vector_type& dxdt, EPRI_GOV_VII
 real__t ODE_solver::
 process_EPRI_GOV_TYPE_IX(const vector_type& x, vector_type& dxdt, EPRI_GOV_IX_DATA& gov) {
     /** 电液调节系统2: input - delta_omega, output - mu */
+  /*
   real__t delta_omega = omega_ref - x[omega_idx];
   integrate_block(dxdt, delta_omega, x[GP1_idx], GP1_idx, 1., 1., gov.T1); //转速测量
   
@@ -423,19 +442,19 @@ process_EPRI_GOV_TYPE_IX(const vector_type& x, vector_type& dxdt, EPRI_GOV_IX_DA
     mu += process_PID_block(x, dxdt, val_pid_in, div_pid_in, GP2_idx, gov.pid);
     mu_div += dxdt[GP2_idx] - gov.pid.Kp * dxdt[GP1_idx];
   }
-  
+  */
   /** 电液伺服机构 -- not implemented */
   
   /** 主汽压力变化模型 */
   /** Note: 在现阶段使用的调速器模型中，由于主汽压力变化模型的响应时间很长，
    *        因此在一般的暂态稳定分析计算中很少考虑，此时认为主汽压力为1
    */
-  real__t P_pressure = 1.;
+  //real__t P_pressure = 1.;
   
   /** 汽轮机模型: input - mu (gate opening, 调门开度), output - P_mech (mechanical power, 机械功率) */
-  mu *= P_pressure;
-  mu_div *= P_pressure;
-  real__t P_mech = process_steam_machine_third_order(x, dxdt, gov.steam, mu, hp_idx, ip_idx, lp_idx);
+  //mu *= P_pressure;
+  //mu_div *= P_pressure;
+  //real__t P_mech = process_steam_machine_third_order(x, dxdt, gov.steam, mu, hp_idx, ip_idx, lp_idx);
   
 #if DEBUG
   cout << "mu = " << mu << endl;
@@ -444,11 +463,13 @@ process_EPRI_GOV_TYPE_IX(const vector_type& x, vector_type& dxdt, EPRI_GOV_IX_DA
   cout << "d_GP2_dt = " << dxdt[GP2_idx] << endl;
 #endif
   
-  return P_mech;
+  //return P_mech;
+  return 3.14;
 }
 
 real__t ODE_solver::
 process_GOV_BPAGG(const vector_type& x, vector_type& dxdt, GOV_BPAGG_DATA& gov) {
+  /*
   real__t val_delta_omega = gov.R * (x[omega_idx] - omega_ref);
   real__t div_delta_omega = gov.R * dxdt[omega_idx];
   integrate_block(x, dxdt, val_delta_omega, div_delta_omega, x[GP1_idx], GP1_idx, 1., gov.T2, 1., gov.T1);
@@ -459,6 +480,8 @@ process_GOV_BPAGG(const vector_type& x, vector_type& dxdt, GOV_BPAGG_DATA& gov) 
   integrate_block(x, dxdt, GP3_idx, GPm_idx, 1., gov.F * gov.T5, 1., gov.T5);
   
   return x[GPm_idx];
+  */
+  return 3.14;
 }
 
 }  // namespace transient_analysis

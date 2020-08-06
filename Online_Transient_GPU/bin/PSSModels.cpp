@@ -75,6 +75,7 @@ process_EPRI_PSS_TYPE_II(const vector_type& x, vector_type& dxdt, EPRI_PSS_II_DA
  */
 real__t ODE_solver::
 process_EPRI_PSS_TYPE_IV(const vector_type& x, vector_type& dxdt, EPRI_PSS_IV_VI_DATA &pss) {
+  /*
   real__t delta_omega = x[omega_idx] - omega_ref;
   integrate_block(dxdt, delta_omega, x[PP1_idx], PP1_idx, pss.Kw, 1., pss.Trw);  //转速测量
   integrate_block(x, dxdt, PP1_idx, PP2_idx, 0., pss.T5, 1., pss.T6);            //转速隔直1
@@ -90,7 +91,7 @@ process_EPRI_PSS_TYPE_IV(const vector_type& x, vector_type& dxdt, EPRI_PSS_IV_VI
   integrate_block(x, dxdt, temp_val, temp_div, x[PP7_idx], PP7_idx, 1., pss.T1, 1., pss.T2);  //移相环节1
   integrate_block(x, dxdt, PP7_idx, PP8_idx, 1., pss.T13, 1., pss.T14);                       //移相环节2
   integrate_block(x, dxdt, PP8_idx, VS_idx, 1., pss.T3, 1., pss.T4);                          //移相环节3
-
+  */
 #if DEBUG
   cout << "*** PSS debugging data: ***\n";
   cout << "d_VP1_dt = " << dxdt[PP1_idx] << endl;
@@ -110,6 +111,7 @@ process_EPRI_PSS_TYPE_IV(const vector_type& x, vector_type& dxdt, EPRI_PSS_IV_VI
 /** PSS 5输入信号取为功率偏差信号。该模型包括两级测量环节、三级隔直环节和移相环节。 */
 real__t ODE_solver::
 process_EPRI_PSS_TYPE_V(const vector_type& x, vector_type& dxdt, EPRI_PSS_V_DATA &pss) {
+  /*
   real__t delta_Pe = Telec - Pe_ref;
   integrate_block(dxdt, delta_Pe, x[PP1_idx], PP1_idx, 1., 1., pss.T1);        //功率测量1
   integrate_block(dxdt, x[PP1_idx], x[PP2_idx], PP2_idx, 1., 1., pss.T2);      //功率测量2
@@ -120,7 +122,7 @@ process_EPRI_PSS_TYPE_V(const vector_type& x, vector_type& dxdt, EPRI_PSS_V_DATA
 
   real__t VS_val = (x[PP5_idx] * pss.K2 * pss.a * (1. - pss.p) +
                     x[PP6_idx] * pss.a * (1. - abs(1. - pss.p)));
-
+  */
 #if DEBUG
   cout << "*** PSS debugging data: ***\n";
   cout << "d_VP1_dt = " << dxdt[PP1_idx] << endl;
@@ -130,13 +132,14 @@ process_EPRI_PSS_TYPE_V(const vector_type& x, vector_type& dxdt, EPRI_PSS_V_DATA
   cout << "d_PP5_dt = " << dxdt[PP5_idx] << endl;
   cout << "d_PP6_dt = " << dxdt[PP6_idx] << endl;
 #endif
-  
+  real__t VS_val = 1.0;
   return apply_limiting(pss.K * VS_val, pss.VS_Min, pss.VS_Max);
 }
 
 /** PSS 6型模型结构与PSS 4类似所不同的是，6型PSS模型无陷波器环节 */
 real__t ODE_solver::
 process_EPRI_PSS_TYPE_VI(const vector_type& x, vector_type& dxdt, EPRI_PSS_IV_VI_DATA &pss) {
+  /*
   real__t delta_omega = x[omega_idx] - omega_ref;
   integrate_block(dxdt, delta_omega, x[PP1_idx], PP1_idx, pss.Kw, 1., pss.Trw);  //转速测量
   integrate_block(x, dxdt, PP1_idx, PP2_idx, 0., pss.T5, 1., pss.T6);            //转速隔直1
@@ -152,7 +155,7 @@ process_EPRI_PSS_TYPE_VI(const vector_type& x, vector_type& dxdt, EPRI_PSS_IV_VI
   integrate_block(x, dxdt, temp_val, temp_div, x[PP7_idx], PP7_idx, 1., pss.T1, 1., pss.T2);  //移相环节1
   integrate_block(x, dxdt, PP7_idx, PP8_idx, 1., pss.T13, 1., pss.T14);                       //移相环节2
   integrate_block(x, dxdt, PP8_idx, VS_idx, 1., pss.T3, 1., pss.T4);                          //移相环节3
-
+   */
 #if DEBUG
   cout << "*** PSS debugging data: ***\n";
   cout << "d_PP1_dt = " << dxdt[PP1_idx] << endl;

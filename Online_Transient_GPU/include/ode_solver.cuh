@@ -165,7 +165,7 @@ class ODE_solver {
   //void setup(const d_vector_type& x, d_vector_type& dxdt);
   void print_dxdt(const vector_type& dxdt);
   
-  real__t omega_ref[i], Vm_ref[i], Pe_ref, Pm_ref, freq_ref;
+  real__t omega_ref[GEN_SIZE], Vm_ref[GEN_SIZE], Pe_ref, Pm_ref, freq_ref;
   real__t omega_ref0, Vm_ref0, Pe_ref0, Pm_ref0, freq_ref0;
   
   real__t omega_ref_0, Vm_ref_0, Pe_ref_0, Pm_ref_0, freq_ref_0;
@@ -196,22 +196,20 @@ class ODE_solver {
  /* these are variables for intermediate computation */
 
 
-  real__t Vm[GEN_SIZE];
   real__t Ifd[GEN_SIZE], dIfd_dt[GEN_SIZE];
-  real__t dIfd_dt[GEN_SIZE];
   real__t Vd[GEN_SIZE], Vq[GEN_SIZE];
   real__t Vm[GEN_SIZE], Va[GEN_SIZE];
   real__t Efd0, mu0;
 
   real__t Telec[GEN_SIZE];
-  //real__t mu[GEN_SIZE] = [0.];
-  //real__t Pmech[GEN_SIZE] = [0.];
-  //real__t Efd[GEN_SIZE] = [0.];
-  //real__t VS[GEN_SIZE] = [0.];
-  vector<real__t> mu(GEN_SIZE, 0.);
-  vector<real__t> Pmech(GEN_SIZE, 0.);
-  vector<real__t> Efd(GEN_SIZE, 0.);
-  vector<real__t> VS(GEN_SIZE, 0.);
+  real__t mu[GEN_SIZE] = {0.};
+  real__t Pmech[GEN_SIZE] = {0.};
+  real__t Efd[GEN_SIZE] = {0.};
+  real__t VS[GEN_SIZE] = {0.};
+  //vector<real__t> mu(GEN_SIZE, 0.);
+  //vector<real__t> Pmech(GEN_SIZE, 0.);
+  //vector<real__t> Efd(GEN_SIZE, 0.);
+  //vector<real__t> VS(GEN_SIZE, 0.);
 
 
   real__t Ifd_0, dIfd_dt_0;

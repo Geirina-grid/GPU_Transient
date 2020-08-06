@@ -52,7 +52,7 @@ void ODE_solver::
 //process_EPRI_GEN_TYPE_I(const state_type& x, state_type& dxdt, EPRI_GEN_DATA& gen) {
 process_EPRI_GEN_TYPE_I_D(const d_vector_type& x, d_vector_type& dxdt, real__t TJ, real__t D) {
   
-  real__t omega_diff = x[omega_idx] - omega_ref;
+  ////real__t omega_diff = x[omega_idx] - omega_ref;
   //thrust::device_vector<value_type> d_x = x;
   //thrust::device_vector<value_type> d_dxdt = dxdt;
   //thrust::device_vector<double> d_omega_idx = omega_idx;
@@ -61,13 +61,14 @@ process_EPRI_GEN_TYPE_I_D(const d_vector_type& x, d_vector_type& dxdt, real__t T
   //real__t d_omega_diff = saxpy_functor(d_x[omega_idx], d_omega_ref);
   //thrust::transform(d_x.begin(), d_x.end(), d_omega_ref, d_omega_diff, thrust::minus<double>());
 
-  dxdt[omega_idx] = (TJ < EPS)
-                    ? 0
-                    : (Pmech - Telec - D * omega_diff) / TJ;
+  ////dxdt[omega_idx] = (TJ < EPS)
+  ////                  ? 0
+  ////                  : (Pmech - Telec - D * omega_diff) / TJ;
   
-  dxdt[delta_idx] = 2 * PI * freq_ref * omega_diff;
-  /*
+  ////dxdt[delta_idx] = 2 * PI * freq_ref * omega_diff;
+  
   printf("x[omega_idx] in solver=%f\n", x[omega_idx]);
+  /*
   printf("x=%f\n", x);
   printf("dxdt=%f\n", dxdt);
   printf("gen=%f\n", TJ);
@@ -101,7 +102,7 @@ void ODE_solver::
 //process_EPRI_GEN_TYPE_I(const state_type& x, state_type& dxdt, EPRI_GEN_DATA& gen) {
 process_EPRI_GEN_TYPE_I(const vector_type& x, vector_type& dxdt, EPRI_GEN_DATA& gen) {
 
-  real__t omega_diff = x[omega_idx] - omega_ref;
+  ////real__t omega_diff = x[omega_idx] - omega_ref;
   //thrust::device_vector<value_type> d_x = x;
   //thrust::device_vector<value_type> d_dxdt = dxdt;
   //thrust::device_vector<double> d_omega_idx = omega_idx;
@@ -110,13 +111,14 @@ process_EPRI_GEN_TYPE_I(const vector_type& x, vector_type& dxdt, EPRI_GEN_DATA& 
   //real__t d_omega_diff = saxpy_functor(d_x[omega_idx], d_omega_ref);
   //thrust::transform(d_x.begin(), d_x.end(), d_omega_ref, d_omega_diff, thrust::minus<double>());
 
-  dxdt[omega_idx] = (gen.TJ < EPS)
-                    ? 0
-                    : (Pmech - Telec - gen.D * omega_diff) / gen.TJ;
+  ////dxdt[omega_idx] = (gen.TJ < EPS)
+  ////                  ? 0
+  ////                  : (Pmech - Telec - gen.D * omega_diff) / gen.TJ;
 
-  dxdt[delta_idx] = 2 * PI * freq_ref * omega_diff;
-  /*
+  ////dxdt[delta_idx] = 2 * PI * freq_ref * omega_diff;
+  
   printf("x=%d\n", x);
+  /*
   printf("dxdt=%d\n", dxdt);
   printf("gen=%d\n", TJ);
   printf("gen=%d\n", D);
@@ -146,7 +148,7 @@ process_EPRI_GEN_TYPE_I(const vector_type& x, vector_type& dxdt, EPRI_GEN_DATA& 
 void ODE_solver::
 process_EPRI_GEN_TYPE_II(const vector_type& x, vector_type& dxdt, EPRI_GEN_DATA& gen) {
 //  Telec = x[Eqp_idx] * Iq + x[Edp_idx] * Id - (gen.Xdp - gen.Xqp) * Id * Iq;
-
+  /*
   dxdt[omega_idx] = (gen.TJ < EPS)
                     ? 0
                     : (Pmech - Telec - gen.D * (x[omega_idx] - omega_ref)) / gen.TJ;
@@ -157,7 +159,7 @@ process_EPRI_GEN_TYPE_II(const vector_type& x, vector_type& dxdt, EPRI_GEN_DATA&
   dxdt[Eqp_idx] = (gen.Td0p < EPS)
                   ? 0.
                   : (Efd - x[Eqp_idx] - (gen.Xd - gen.Xdp) * Id - (KG - 1.) * x[Eqp_idx]) / gen.Td0p;
-  
+  */
 #if DEBUG
   cout << "\n*** GEN debugging data: ***\n";
   cout << "Edp = " << x[Edp_idx] << endl;
@@ -176,7 +178,7 @@ process_EPRI_GEN_TYPE_II(const vector_type& x, vector_type& dxdt, EPRI_GEN_DATA&
 void ODE_solver::
 process_EPRI_GEN_TYPE_III(const vector_type& x, vector_type& dxdt, EPRI_GEN_DATA& gen) {
 //  Telec = x[Eqpp_idx] * Iq + x[Edpp_idx] * Id - (gen.Xdpp - gen.Xqpp) * Id * Iq;
-
+  /*
   dxdt[omega_idx] = (gen.TJ < EPS)
                     ? 0
                     : (Pmech - Telec - gen.D * (x[omega_idx] - omega_ref)) / gen.TJ;
@@ -195,7 +197,7 @@ process_EPRI_GEN_TYPE_III(const vector_type& x, vector_type& dxdt, EPRI_GEN_DATA
   dxdt[Edpp_idx] = (gen.Tq0pp < EPS)
                    ? 0.
                    : (-x[Edpp_idx] + (gen.Xqp - gen.Xqpp) * Iq + x[Edp_idx]) / gen.Tq0pp + dxdt[Edp_idx];
-  
+  */
 #if DEBUG
   cout << "\n*** GEN debugging data: ***\n";
   cout << "Edp = " << x[Edp_idx] << endl;
@@ -219,6 +221,7 @@ void ODE_solver::
 process_EPRI_GEN_TYPE_VI(const vector_type& x, vector_type& dxdt, EPRI_GEN_DATA& gen) {
 //  Telec = x[Eqpp_idx] * Iq + x[Edpp_idx] * Id - (gen.Xdpp - gen.Xqpp) * Id * Iq;
   printf("x[omega_idx] in process_EPRI_GEN_TYPE_VI =%f\n", x[omega_idx]);
+  /*
   real__t omega_diff = x[omega_idx] - omega_ref;
   
   dxdt[omega_idx] = (gen.TJ < EPS)
@@ -243,7 +246,7 @@ process_EPRI_GEN_TYPE_VI(const vector_type& x, vector_type& dxdt, EPRI_GEN_DATA&
   dxdt[Edpp_idx] = (gen.Tq0pp < EPS)
                    ? 0.
                    : (-x[Edpp_idx] + (gen.Xqp - gen.Xqpp) * Iq + x[Edp_idx]) / gen.Tq0pp + dxdt[Edp_idx];
-
+  */
 #if DEBUG
   cout << "\n*** GEN debugging data: ***\n";
   cout << "Efd = " << Efd << endl;
@@ -270,6 +273,7 @@ process_EPRI_GEN_TYPE_VI(const vector_type& x, vector_type& dxdt, EPRI_GEN_DATA&
 }
 
 void ODE_solver::process_GENROU(const vector_type& x, vector_type& dxdt, GENROU_IEEE_DATA& gen) {
+  /*
   real__t Xl   = gen.Xl;
   real__t Xd   = gen.Xd;
   real__t Xq   = gen.Xq;
@@ -279,7 +283,7 @@ void ODE_solver::process_GENROU(const vector_type& x, vector_type& dxdt, GENROU_
   real__t Xqpp = gen.Xqpp;
 
   Telec = x[Eqpp_idx] * Iq + x[Edpp_idx] * Id - (Xdpp - Xqpp) * Id * Iq;
-  
+  */
 //  Pmech = x[gov_Pmech_idx];
 //  Pmech = x[PT2_idx] + gov.alpha * x[PCH_idx];
 
@@ -289,18 +293,18 @@ void ODE_solver::process_GENROU(const vector_type& x, vector_type& dxdt, GENROU_
   
 //  real__t Efd = x[Efd_idx];
 //  Efd = apply_limiting(x[Efd_idx], exc.Efd_Min, exc.Efd_Max);
-  real__t delta_omega = (x[omega_idx] - omega_ref);
+  ////real__t delta_omega = (x[omega_idx] - omega_ref);
 //  delta_omega = apply_dead_band(delta_omega, 0.001);
 
 
-  dxdt[omega_idx] = (gen.TJ < EPS)
-                    ? 0.
-                    : (  (Pmech / x[omega_idx] - Telec)
-                       - gen.D * delta_omega / x[omega_idx] ) / gen.TJ;
+  ////dxdt[omega_idx] = (gen.TJ < EPS)
+  ////                  ? 0.
+  ////                  : (  (Pmech / x[omega_idx] - Telec)
+  ////                     - gen.D * delta_omega / x[omega_idx] ) / gen.TJ;
 
 //  if (gen.gen_id == 31 || gen.gen_id == 11 || gen.gen_id == 62 || gen.gen_id == 48 || gen.gen_id == 53)
 //    dxdt[omega_idx] = 0.;
-  
+  /*
   dxdt[delta_idx] = 2 * PI * freq_ref * delta_omega;
 
   dxdt[Eqp_idx] = (gen.Td0p < EPS)
@@ -325,7 +329,7 @@ void ODE_solver::process_GENROU(const vector_type& x, vector_type& dxdt, GENROU_
                    ? 0.
                    :  (Xqpp - Xl) / (Xqp - Xl) * dxdt[Edp_idx]
                     + (-x[Edpp_idx] + (Xqp - Xqpp) * Iq + x[Edp_idx]) / gen.Tq0pp;
-  
+  */
 #if DEBUG
   cout << "Edp = " << x[Edp_idx] << endl;
   cout << "Eqp = " << x[Eqp_idx] << endl;
