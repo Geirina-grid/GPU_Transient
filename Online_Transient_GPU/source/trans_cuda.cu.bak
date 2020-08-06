@@ -1,0 +1,90 @@
+#include <trans_cuda.hpp>
+//#include "GraphDyn_util.hpp"
+#include <thrust/host_vector.h>
+#include <thrust/device_vector.h>
+#include <map>
+//#include <thrust/copy.h>
+//#include <thrust/fill.h>
+//#include <thrust/sequence.h>
+
+//#include <iostream>
+//namespace transient_analysis {
+
+//extern "C" void test_cuda(unordered_map<int, int> generators){
+
+//struct printf_functor
+//{
+  //__host__ __device__
+  //void operator()(std::pair<string, GENERATOR>)
+  //{
+    // note that using printf in a __device__ function requires
+    // code compiled for a GPU with compute capability 2.0 or
+    // higher (nvcc --arch=sm_20)
+    //auto &g_hldr = generators;
+    //char * bus_name=g_hldr.first;
+    //char * gen=g_hldr.second;
+    //std::cout << "bus_name address:" << &bus_name << std::endl;
+    //std::cout << "bus_name:" << bus_name << std::endl;
+    //std::cout << "gen:" << gen.Gen_Model << " " <<gen.GOV_Model << std::endl;
+    //printf("g_hldr = %s\n", g_hldr);
+    //printf("Hello from printg_functor\n");
+  //}
+//};
+
+extern "C" void test_cuda(map<string, GENERATOR> generators){
+
+//void test_cuda(map<string, GENERATOR> $generators){
+//__global__ void test_cuda(){
+    //thrust::for_each(generators.begin(), generators.end(), printf_functor());
+    for (auto &g_hldr : generators) {
+        auto & bus_name=g_hldr.first;
+        auto & gen=g_hldr.second;
+        printf("Hello world from GPU!\n");
+        std::cout << "bus_name address:" << &bus_name << std::endl;
+        std::cout << "bus_name:" << bus_name << std::endl;
+        std::cout << "gen:" << gen.Gen_Model << " " <<gen.GOV_Model << std::endl;
+        //printf("\n\nrunning ODE solver for bus %d\n",bus_name);
+        printf("\n\nrunning ODE solver for bus %s with Gen type %d, GOV type %d, AVR type %d, PSS type %d\n",
+             bus_name.c_str(), gen.Gen_Model, gen.GOV_Model, gen.AVR_Model, gen.PSS_Model);
+    }
+    cuda_for();
+}
+
+int cuda_for(){
+   printf("This is cuda for program.\n");
+   thrust::host_vector<int> H(4);
+
+    // initialize individual elements
+    H[0] = 14;
+    H[1] = 20;
+    H[2] = 38;
+    H[3] = 46;
+
+    // H.size() returns the size of vector H
+    std::cout << "H has size " << H.size() << std::endl;
+
+    // print contents of H
+    for(int i = 0; i < H.size(); i++)
+        std::cout << "H[" << i << "] = " << H[i] << std::endl;
+
+    // resize H
+    H.resize(2);
+
+    std::cout << "H now has size " << H.size() << std::endl;
+
+    // Copy host_vector H to device_vector D
+    thrust::device_vector<int> D = H;
+
+    // elements of D can be modified
+    D[0] = 99;
+    D[1] = 88;
+
+    // print contents of D
+    for(int i = 0; i < D.size(); i++)
+        std::cout << "D[" << i << "] = " << D[i] << std::endl;
+
+    // H and D are automatically deleted when the function returns
+    return 0;
+}
+
+//}
