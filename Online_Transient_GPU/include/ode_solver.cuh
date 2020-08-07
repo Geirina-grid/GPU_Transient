@@ -17,10 +17,10 @@ class ODE_solver {
   //void operator()(const vector_type& x, vector_type& dxdt, real__t t);
   void operator()(const d_vector_type &x, d_vector_type &dxdt, const value_type t);
   
-  real__t get_Pmech() {return Pmech[0];};
-  real__t get_Efd() {return Efd[0];};
-  real__t get_VS() {return VS[0];};
-  real__t get_mu() {return mu[0];};
+  real__t get_Pmech(int gen_ith) {return Pmech[gen_ith];};
+  real__t get_Efd(int gen_ith) {return Efd[gen_ith];};
+  real__t get_VS(int gen_ith) {return VS[gen_ith];};
+  real__t get_mu(int gen_ith) {return mu[gen_ith];};
   real__t get_rectified_regulator(real__t src);
 
   //thrust::device_vector<int> d_vec(8);

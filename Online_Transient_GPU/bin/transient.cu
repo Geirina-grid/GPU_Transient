@@ -394,9 +394,11 @@ void Transient_Solver::run(int argc, char** argv) {
       std::terminate();
     }
     
-    int gen_length = 0;
+    int gen_length = 35;
     int gen_count = 0;
     int gen_attr_count = 0;
+    d_vector_type d2_gen_solution_set(GEN_SIZE*gen_length);
+    d_vector_type d2_gen_error_set(GEN_SIZE*gen_length);
     for (auto& g_hldr : generators) {
       auto & bus_name=g_hldr.first;
       auto & gen=g_hldr.second;
@@ -417,24 +419,27 @@ void Transient_Solver::run(int argc, char** argv) {
       //h2_gen_solution_set[gen_count][gen_attr_count]
       h2_gen_solution_set.push_back(gen_solution[bus_name]);
       h2_gen_error_set.push_back(gen_error[bus_name]);
+      thrust::copy(h2_gen_solution_set[gen_count].begin(), h2_gen_solution_set[gen_count].end(), &d2_gen_solution_set[gen_count*gen_length]);
+      thrust::copy(h2_gen_error_set[gen_count].begin(), h2_gen_error_set[gen_count].end(), &d2_gen_error_set[gen_count*gen_length]);
       gen_count++;
     }
     //int gen_length = gen_solution[bus_name].size();
-    d_vector_type d2_gen_solution_set(GEN_SIZE*gen_length);
+    //d_vector_type d2_gen_solution_set(GEN_SIZE*gen_length);
     //d_vector_type d2_gen_solution_set(h2_gen_solution_set.begin(), h2_gen_solution_set.end());
     //thrust::copy(&(h2_gen_solution_set[0][0]), &(h2_gen_solution_set[7][gen_length-1]), d2_gen_solution_set.begin());
-    for(int i=0; i < GEN_SIZE; i++){
-        thrust::copy(h2_gen_solution_set[i].begin(), h2_gen_solution_set[i].end(), &d2_gen_solution_set[i*gen_length]);
-    }
+    //for(int i=0; i < GEN_SIZE; i++){
+    //    thrust::copy(h2_gen_solution_set[i].begin(), h2_gen_solution_set[i].end(), &d2_gen_solution_set[i*gen_length]);
+    //    thrust::copy(h2_gen_error_set[i].begin(), h2_gen_error_set[i].end(), &d2_gen_error_set[i*gen_length]);
+    //}
     thrust::sequence(d2_gen_solution_set.begin(), d2_gen_solution_set.end());
 
 
-    d_vector_type d2_gen_error_set(GEN_SIZE*gen_length);
+    //d_vector_type d2_gen_error_set(GEN_SIZE*gen_length);
     //thrust::copy(&(h2_gen_error_set[0][0]), &(h2_gen_error_set[7][gen_length-1]), d2_gen_error_set.begin());
     //d_vector_type d2_gen_error_set(h2_gen_error_set.begin(), h2_gen_error_set.end());
-    for(int i =0; i<GEN_SIZE; i++){
-        thrust::copy(h2_gen_error_set[i].begin(), h2_gen_error_set[i].end(), &d2_gen_error_set[i*gen_length]);
-    }
+    //for(int i =0; i<GEN_SIZE; i++){
+    //    thrust::copy(h2_gen_error_set[i].begin(), h2_gen_error_set[i].end(), &d2_gen_error_set[i*gen_length]);
+   // }
     thrust::sequence(d2_gen_error_set.begin(), d2_gen_error_set.end());
     //d_vector_type d2_gen_solution_set = h2_gen_solution_set;
     //d_vector_type d2_gen_error_set = h2_gen_error_set;
@@ -442,7 +447,7 @@ void Transient_Solver::run(int argc, char** argv) {
 
     dopri5_stepper_type.do_step(system, d2_gen_solution_set, current_time,
                                   time_stepping, d2_gen_error_set);
-
+    int gen_ith = 0;
     for (auto& g_hldr : generators) {
       auto & bus_name=g_hldr.first;
       auto & gen=g_hldr.second;
@@ -455,10 +460,11 @@ void Transient_Solver::run(int argc, char** argv) {
       //integrate_adaptive( make_controlled( 1.0e-6 , 1.0e-6 , dopri5_stepper_type() ) , system , x , t , t + 1.0 , 0.1 );
       //cout << "End of dp_step===========================" << endl;
       /** post-process: prepare for outputs */
-      gen_solution[bus_name][mu_output_idx]  = system.get_mu();
-      gen_solution[bus_name][PT_output_idx]  = system.get_Pmech();
-      gen_solution[bus_name][Efd_output_idx] = system.get_Efd();
-      gen_solution[bus_name][VS_output_idx]  = system.get_VS();
+      gen_solution[bus_name][mu_output_idx]  = system.get_mu(gen_ith);
+      gen_solution[bus_name][PT_output_idx]  = system.get_Pmech(gen_ith);
+      gen_solution[bus_name][Efd_output_idx] = system.get_Efd(gen_ith);
+      gen_solution[bus_name][VS_output_idx]  = system.get_VS(gen_ith);
+      gen_ith++;
       /* update the time and number of steps */
       //current_time += time_stepping;
       //num_of_steps++;

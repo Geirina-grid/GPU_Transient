@@ -26,15 +26,8 @@
 using namespace boost::numeric::odeint;
 namespace transient_analysis {
 
-//thrust::host_vector<double> Vm;
-  std::vector<thrust::device_vector<double>> Vm(8);
-  std::vector<thrust::device_vector<double>> Vx;
-  //thrust::device_vector<double> Vy(8);
-  //thrust::device_vector<double> Va(8);
-  //thrust::device_vector<double> Vd(8);
-  //thrust::device_vector<double> Vq(8);
-  //thrust::device_vector<double> Ifd(8);
-
+  //std::vector<thrust::device_vector<double>> Vm(8);
+  //std::vector<thrust::device_vector<double>> Vx;
 
 real__t ODE_solver::
 apply_limiting(real__t val, const real__t val_min, const real__t val_max) {
