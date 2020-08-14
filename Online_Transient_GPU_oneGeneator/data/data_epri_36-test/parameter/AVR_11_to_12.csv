@@ -1,0 +1,2 @@
+ID,Par_No,xc_modul,tr_measure,k_dcplus,kv_integ,t1_series,t2_series,t3_series,t4_series,ka_amplify,ta_amplify,vamax,vamin,kf_paral,tf_paral,vrmax,vrmin,kc_load,Vs_POS,R_MODEL,vmax1,vmin1,vmax2,vmin2,lelocation,lemodel,leparno,oelocation,oemodel,oeparno,oilocation,oimodel,oiparno,Note
+1,1,0.000000,0.030000,50.000000,1.000000,1.000000,10.000000,0.800000,0.100000,1.000000,0.020000,99999.000000,-99999.000000,0.050000,1.200000,5.000000,-3.500000,0.100000,0,0,9999.900000,-9999.900000,9999.900000,-9999.900000,0,1,0,0,1,0,0,1,0,
