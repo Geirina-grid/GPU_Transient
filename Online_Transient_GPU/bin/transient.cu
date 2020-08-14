@@ -399,6 +399,7 @@ void Transient_Solver::run(int argc, char** argv) {
     int gen_attr_count = 0;
     d_vector_type d2_gen_solution_set(GEN_SIZE*gen_length);
     d_vector_type d2_gen_error_set(GEN_SIZE*gen_length);
+    std::clock_t start_forloop = std::clock();
     for (auto& g_hldr : generators) {
       auto & bus_name=g_hldr.first;
       auto & gen=g_hldr.second;
@@ -444,9 +445,12 @@ void Transient_Solver::run(int argc, char** argv) {
     //d_vector_type d2_gen_solution_set = h2_gen_solution_set;
     //d_vector_type d2_gen_error_set = h2_gen_error_set;
     
-
+    std::clock_t start = std::clock();
     dopri5_stepper_type.do_step(system, d2_gen_solution_set, current_time,
                                   time_stepping, d2_gen_error_set);
+    printf("+++After 8 Gen computing: %.4f seconds\n\n", (std::clock() - start) / (real__t)CLOCKS_PER_SEC);
+
+    printf("+++After 8 Gen computing including forloop: %.4f seconds\n\n", (std::clock() - start_forloop) / (real__t)CLOCKS_PER_SEC);
     int gen_ith = 0;
     for (auto& g_hldr : generators) {
       auto & bus_name=g_hldr.first;

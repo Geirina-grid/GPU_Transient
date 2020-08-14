@@ -404,6 +404,7 @@ operator()(const d_vector_type &x, d_vector_type &dxdt, const value_type t) {
   thrust::device_vector<double> d_freq_ref(8);
 
   //Initialization
+  std::clock_t start = std::clock();
   for(int i = 0; i < 8; i++){
       //3D Host paramater to device
       d_x_omega_idx[i] = x[i*8 + 0];
@@ -436,6 +437,7 @@ operator()(const d_vector_type &x, d_vector_type &dxdt, const value_type t) {
       d_Vm_ref[i] = Vm_ref[i];
       d_omega_ref[i] = omega_ref[i];
   }
+  printf("+++Initialization CPU to GPU: %.4f seconds\n\n", (std::clock() - start) / (real__t)CLOCKS_PER_SEC);
    //Vm = sqrt(Vx *Vx + Vy * Vy);
   //Va = atan2(Vy, Vx);
   //Vd = Vm * sin(x[delta_idx] - Va);
@@ -444,6 +446,7 @@ operator()(const d_vector_type &x, d_vector_type &dxdt, const value_type t) {
   //Ifd     = gen.a * x[Eqp_idx] + gen.b * pow(x[Eqp_idx], gen.n);
   //dIfd_dt = gen.a * dxdt[Eqp_idx] + gen.b * gen.n * pow(x[Eqp_idx], gen.n - 1) * dxdt[Eqp_idx];
 
+  std::clock_t start_forloop = std::clock();
 
   thrust::for_each(thrust::make_zip_iterator(thrust::make_tuple(d_Vm.begin(), d_Vx.begin(), d_Vy.begin(), d_Va.begin(),d_Vd.begin(), d_Vq.begin(), d_x_delta_id.begin())),thrust::make_zip_iterator(thrust::make_tuple(d_Vm.end(), d_Vx.end(), d_Vy.end(), d_Va.end(), d_Vd.end(), d_Vq.end(), d_x_delta_id.end())), parallel_setup_1_functor());
 
@@ -490,24 +493,22 @@ operator()(const d_vector_type &x, d_vector_type &dxdt, const value_type t) {
 
   thrust::for_each(thrust::make_zip_iterator(thrust::make_tuple(d_x_omega_idx.begin(), d_omega_ref.begin(),d_dxdt_omega_idx.begin(),d_TJ.begin(), d_EPS.begin(), d_Pmech.begin(), d_Telec.begin(), d_D.begin(), d_dxdt_delta_idx.begin(), d_freq_ref.begin())),thrust::make_zip_iterator(thrust::make_tuple(d_x_omega_idx.end(), d_omega_ref.end(), d_dxdt_omega_idx.end(), d_TJ.end(), d_EPS.end(), d_Pmech.end(), d_Telec.end(), d_D.end(), d_dxdt_delta_idx.end(), d_freq_ref.end())), process_EPRI_GEN_TYPE_I_D_functor());
 
+
+  printf("+++Computing in GPU: %.4f seconds\n\n", (std::clock() - start_forloop) / (real__t)CLOCKS_PER_SEC);
+
+  std::clock_t start_dtoc = std::clock();
   //copy device parameter to host
+  
   for(int i = 0; i < GEN_SIZE; i++){
-      //3D Host paramater to device
-      //x[i*8 + 0] = d_x_omega_idx[i];
-      //x[i*8 + 1] = d_x_delta_id[i];
-      //x[i*8 + 2] = d_x_Eqp_idx[i];
-      //dxdt[i*8 + 2] = d_dxdt_Eqp_idx[i];
       gen.a = d_gen_a[i];
       gen.b = d_gen_b[i];
       gen.n = d_gen_n[i];
       gen.Ra = d_gen_Ra[i];
       gen.Xdp = d_gen_Xdp[i];
       gen.Xqp = d_gen_Xqp[i];
-      //x[i*8 + 3] = d_x_Edp_idx[i];
       gen.bus_id = d_gen_bus_id[i];
       parameters.Vt_ref = d_parameters_Vt_ref[i];
       parameters.omega_ref = d_parameters_omega_ref[i];
-      //t = d_t[i];
       //2D host parameter tp device
       Vm[i] = d_Vm[i];
       Vx[i] = d_Vx[i];
@@ -523,6 +524,7 @@ operator()(const d_vector_type &x, d_vector_type &dxdt, const value_type t) {
       Vm_ref[i] = d_Vm_ref[i];
       omega_ref[i] = d_omega_ref[i];
   }
+  printf("+++From GPU TO CPU: %.4f seconds\n\n", (std::clock() - start_dtoc) / (real__t)CLOCKS_PER_SEC);
 
 
   /*
