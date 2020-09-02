@@ -1,0 +1,2 @@
+id,tap_bus,z_bus,area,zone,circuit,type,R,X,B,Line_Q1,Line_Q2,Line_Q3,control_bus,side,transformer_final_turns_ratio,transformer_final_angle,Min_tap,Max_tap,step_size,Min_volt,Max_volt,M_P_TLPF,M_Q_TLPF,M_P_TLPF_reverse,M_Q_TLPF_reverse,Ri_eP,Ri_eQ,Ri_eP_reverse,Ri_eQ_reverse
+0,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
